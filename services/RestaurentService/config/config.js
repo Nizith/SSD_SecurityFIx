@@ -6,5 +6,6 @@ module.exports = {
     MONDODB_URL: process.env.MONDODB_URL,
     JWT_SECRET: process.env.JWT_SECRET,
     JWT_EXPIRE: process.env.JWT_EXPIRE,
-    ADMIN_REGISTRATION_KEY: process.env.ADMIN_REGISTRATION_KEY
+    ADMIN_REGISTRATION_KEY: process.env.ADMIN_REGISTRATION_KEY,
+    AUTH_SERVICE_URL: process.env.AUTH_SERVICE_URL
 };

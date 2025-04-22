@@ -1,56 +1,42 @@
-const jwt = require('jsonwebtoken');
-const User = require('../models/userModel');
-const { JWT_SECRET } = require('../config/config');
+const axios = require('axios');
+const { AUTH_SERVICE_URL } = require('../config/config');
 
-// Middleware to protect routes (authentication)
-exports.protect = async (req, res, next) => {
-    let token;
+const verifyToken = async (req, res, next) => {
+  const token = req.header('Authorization')?.replace('Bearer ', '');
 
-    // Check if token exists in Authorization header
-    if (req.headers.authorization &&
-        req.headers.authorization.startsWith('Bearer')) {
-        // Extract token from header
-        token = req.headers.authorization.split(' ')[1];
+  if (!token) {
+    return res.status(401).json({ message: 'Authorization header with Bearer token is required' });
+  }
+
+  try {
+    // Call AuthService to verify the token
+    const response = await axios.post(`${AUTH_SERVICE_URL}/api/auth/verify-token`, { token });
+
+    if (!response.data || !response.data.valid) {
+      return res.status(401).json({ message: 'Invalid or expired token' });
     }
 
-    // Check if no token
-    if (!token) {
-        return res.status(401).json({
-            success: false,
-            error: 'Not authorized to access this route'
-        });
-    }
-
-    try {
-        // Verify token
-        const decoded = jwt.verify(token, JWT_SECRET);
-
-        // Find user by ID from decoded token
-        req.user = await User.findById(decoded.id).select('-password');
-
-        // If user found, proceed to next middleware
-        next();
-    } catch (err) {
-        console.error('JWT Error:', err);
-        return res.status(401).json({
-            success: false,
-            error: 'Not authorized to access this route'
-        });
-    }
+    req.user = response.data.user; // Attach user info to the request
+    next();
+  } catch (error) {
+    console.error('Error in verifying token:', error.response?.data || error.message);
+    return res.status(401).json({ message: 'Token verification failed' });
+  }
 };
 
-// Middleware to check user roles
-exports.authorize = (...roles) => {
-    return (req, res, next) => {
-        // Check if user's role is in the allowed roles
-        if (!roles.includes(req.user.role)) {
-            return res.status(403).json({
-                success: false,
-                error: `User role ${req.user.role} is not authorized to access this route`
-            });
-        }
+const authorize = (...roles) => (req, res, next) => {
+  if (!req.user || !req.user.role) {
+    return res.status(403).json({ message: 'User role is not defined' });
+  }
 
-        // If role is authorized, proceed to next middleware
-        next();
-    };
+  if (!roles.includes(req.user.role)) {
+    return res.status(403).json({ message: `User role ${req.user.role} is not authorized to access this route` });
+  }
+
+  next();
+};
+
+module.exports = {
+  verifyToken,
+  authorize,
 };

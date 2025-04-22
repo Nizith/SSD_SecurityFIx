@@ -1,39 +1,40 @@
-const express = require('express'); 
+require('dotenv').config();
+const express = require('express');
 const cors = require('cors');
-const bodyParser = require('body-parser');
-const app = express();
-const config = require('./config/config');
+const helmet = require('helmet');
 const connectDB = require('./config/db');
 
-/**
- * Use cors to allow cross-origin requests
- * This is important for allowing the frontend and backend to communicate
- * */
-app.use(cors());
+// Import routes
+const restaurantRoutes = require('./routes/restaurantRoutes');
+const menuRoutes = require('./routes/menuRoutes');
 
-/**
- * This middleware is crucial for parsing JSON request bodies
- * It convert the incoming data into the JSON format
- * and makes it accessible in the req.body object.
- */
-app.use(bodyParser.json()); 
+// Initialize express app
+const app = express();
 
-// Optional: to support URL-encoded bodies
-app.use(bodyParser.urlencoded({ extended: true })); 
-
-const PORT = config.PORT;
-
-app.listen(PORT, () => {    
-    console.log(`Server running on ${PORT}`);
-});
-
-//Connecting to the database 
+// Connect to MongoDB
 connectDB();
 
-//import routes
-const authRoutes = require('./routes/authRoutes');
-const userRoutes = require('./routes/userRoutes');
+// Middleware
+app.use(helmet());
+app.use(cors());
+app.use(express.json());
 
-//using routes
-app.use('/foodsys/auth', authRoutes);
-app.use('/foodsys/users', userRoutes);
+// Routes
+app.use('/api/restaurants', restaurantRoutes);
+app.use('/api/menu', menuRoutes);
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok', service: 'restaurant-service' });
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: 'Something went wrong!' });
+});
+
+const PORT = process.env.PORT || 3002;
+app.listen(PORT, () => {
+  console.log(`Restaurant service running on port ${PORT}`);
+});
