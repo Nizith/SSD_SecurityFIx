@@ -1,0 +1,14 @@
+# Ignore node_modules (dependencies)
+node_modules/
+
+# Ignore build artifacts
+build/
+
+#ignore the file uploads
+*.pdf
+*.doc*
+*.xl*
+*.jp*
+*.png
+
+.env

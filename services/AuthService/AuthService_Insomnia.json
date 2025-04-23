@@ -1,0 +1,123 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2025-04-18T00:00:00.000Z",
+  "__export_source": "insomnia.desktop.app:v2023.1.0",
+  "resources": [
+    {
+      "_id": "wrk_AuthService",
+      "created": 1692297600000,
+      "description": "AuthService APIs",
+      "modified": 1692297600000,
+      "name": "AuthService",
+      "scope": "collection",
+      "_type": "workspace"
+    },
+    {
+      "_id": "fld_AuthService",
+      "parentId": "wrk_AuthService",
+      "modified": 1692297600000,
+      "name": "AuthService APIs",
+      "_type": "request_group"
+    },
+    {
+      "_id": "req_register",
+      "parentId": "fld_AuthService",
+      "modified": 1692297600000,
+      "name": "Register User",
+      "url": "http://localhost:4800/api/auth/register",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"password123\",\n  \"adminKey\": \"FoodsysAdminDS27\"\n}"
+      },
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "_type": "request"
+    },
+    {
+      "_id": "req_login",
+      "parentId": "fld_AuthService",
+      "modified": 1692297600000,
+      "name": "Login User",
+      "url": "http://localhost:4800/api/auth/login",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"password123\"\n}"
+      },
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "_type": "request"
+    },
+    {
+      "_id": "req_get_all_users",
+      "parentId": "fld_AuthService",
+      "modified": 1692297600000,
+      "name": "Get All Users",
+      "url": "http://localhost:4800/api/users/all-users",
+      "method": "GET",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ jwt_token }}"
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "_type": "request"
+    },
+    {
+      "_id": "req_update_role",
+      "parentId": "fld_AuthService",
+      "modified": 1692297600000,
+      "name": "Update User Role",
+      "url": "http://localhost:4800/api/users/update-role/:id",
+      "method": "PATCH",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"role\": \"restaurant\"\n}"
+      },
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ jwt_token }}"
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "_type": "request"
+    },
+    {
+      "_id": "req_verify_token",
+      "parentId": "fld_AuthService",
+      "modified": 1692297600000,
+      "name": "Verify Token",
+      "url": "http://localhost:4800/api/auth/verify-token",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"token\": \"{{ jwt_token }}\"\n}"
+      },
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "_type": "request"
+    }
+  ]
+}
