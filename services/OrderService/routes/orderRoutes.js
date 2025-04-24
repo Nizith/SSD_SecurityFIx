@@ -3,7 +3,7 @@ const express = require("express");
 const router = express.Router();
 const cartController = require("../controllers/cartController");
 const orderController = require("../controllers/orderController");
-const verifyToken = require("../middleware/authMiddleware");
+const { verifyToken, authorize } = require('../middleware/authMiddleware'); 
 
 router.post("/cart/add", verifyToken, cartController.addToCart);
 // update cart item
