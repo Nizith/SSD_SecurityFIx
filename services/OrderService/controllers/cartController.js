@@ -20,7 +20,45 @@ exports.addToCart = async (req, res) => {
 
     const unitPrice = menuItem.price;
     const totalPrice = unitPrice * quantity;
-
+    exports.addToCart = async (req, res) => {
+      const { menuItemId, quantity } = req.body;
+      const userId = req.user.id;
+    
+      if (!menuItemId || !quantity || quantity < 1) {
+        return res.status(400).json({ message: "Invalid cart input" });
+      }
+    
+      try {
+        const menuItemResponse = await axios.get(`http://localhost:4700/api/menu/${menuItemId}`);
+        const menuItem = menuItemResponse.data;
+    
+        if (!menuItem) {
+          return res.status(404).json({ message: "Menu item not found in menu service" });
+        }
+    
+        const unitPrice = menuItem.price;
+        const totalPrice = unitPrice * quantity;
+    
+        const cartItem = new CartItem({
+          userId,
+          restaurantId: menuItem.restaurantId,
+          menuItemId,
+          quantity,
+          name: menuItem.name,
+          price: unitPrice,
+          totalPrice,
+          imageUrl: menuItem.imageUrl,
+          preparationTime: menuItem.preparationTime,
+        });
+    
+        await cartItem.save();
+        res.status(201).json({ message: "Item added to cart", cartItem });
+      } catch (err) {
+        console.error("Add to cart error:", err.message);
+        res.status(500).json({ message: "Server error", error: err.message });
+      }
+    };
+    
     const cartItem = new CartItem({
       userId,
       restaurantId: menuItem.restaurantId,
