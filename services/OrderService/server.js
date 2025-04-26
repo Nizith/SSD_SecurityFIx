@@ -5,6 +5,7 @@ const helmet = require('helmet');
 const connectDB = require('./config/db');
 
 // Import routes
+const cartRoutes = require('./routes/cartRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 
 // Initialize express app
@@ -19,6 +20,7 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
+app.use('/api/cart', cartRoutes); 
 app.use('/api/order', orderRoutes); 
 
 // Error handling middleware
@@ -29,5 +31,5 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 3002;
 app.listen(PORT, () => {
-  console.log(`Restaurant service running on port ${PORT}`);
+  console.log(`order service running on port ${PORT}`);
 });

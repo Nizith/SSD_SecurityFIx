@@ -24,6 +24,31 @@ const getMenuItemById = async (req, res) => {
   }
 };
 
+// sayuri
+const getMenuItemByIdTest = async (req, res) => {
+  try {
+    const menuItem = await MenuItem.findById(req.params.menuItemId);
+    if (!menuItem) {
+      return res.status(404).json({ message: 'Menu item not found' });
+    }
+    res.json(menuItem);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Get all menu items (across all restaurants) — for admin or testing
+const getAllMenuItems = async (req, res) => {
+  try {
+    const menuItems = await MenuItem.find();
+    res.json(menuItems);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+
+
 // Create new menu item
 const createMenuItem = async (req, res) => {
   try {
@@ -139,5 +164,7 @@ module.exports = {
   updateMenuItem,
   deleteMenuItem,
   toggleMenuItemAvailability,
-  getMenuItemsByCategory
+  getMenuItemsByCategory,
+  getMenuItemByIdTest,
+  getAllMenuItems
 };
