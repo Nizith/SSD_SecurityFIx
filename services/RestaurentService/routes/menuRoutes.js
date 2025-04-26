@@ -7,6 +7,10 @@ const router = express.Router();
 // Public routes
 router.get('/:restaurantId/menu', menuController.getMenuItems);
 router.get('/:restaurantId/menu/:id', menuController.getMenuItemById);
+// test route
+router.get('/:id', menuController.getMenuItemById);
+router.get('/', menuController.getAllMenuItems);
+
 router.get('/:restaurantId/menu/category/:category', menuController.getMenuItemsByCategory);
 
 // Restaurant owner routes
