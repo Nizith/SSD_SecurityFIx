@@ -1,0 +1,161 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2025-04-27T00:00:00.000Z",
+  "__export_source": "insomnia.desktop.app:v2023.1.0",
+  "resources": [
+    {
+      "_id": "wrk_DeliveryService",
+      "created": 1692297600000,
+      "description": "DeliveryService APIs",
+      "modified": 1692297600000,
+      "name": "DeliveryService",
+      "scope": "collection",
+      "_type": "workspace"
+    },
+    {
+      "_id": "fld_DeliveryService",
+      "parentId": "wrk_DeliveryService",
+      "modified": 1692297600000,
+      "name": "Delivery APIs",
+      "_type": "request_group"
+    },
+    {
+      "_id": "req_create_delivery",
+      "parentId": "fld_DeliveryService",
+      "modified": 1692297600000,
+      "name": "Create Delivery",
+      "url": "http://localhost:4900/api/delivery/create",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"orderId\": \"64f1c2e5f1a2b3c4d5e6f7g8\"\n}"
+      },
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ jwt_token }}"
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "_type": "request"
+    },
+    {
+      "_id": "req_assign_driver",
+      "parentId": "fld_DeliveryService",
+      "modified": 1692297600000,
+      "name": "Assign Driver",
+      "url": "http://localhost:4900/api/delivery/:deliveryId/assign-driver",
+      "method": "PATCH",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{}"
+      },
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ jwt_token }}"
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "_type": "request"
+    },
+    {
+      "_id": "req_update_delivery_status",
+      "parentId": "fld_DeliveryService",
+      "modified": 1692297600000,
+      "name": "Update Delivery Status",
+      "url": "http://localhost:4900/api/delivery/:deliveryId/status",
+      "method": "PATCH",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"status\": \"in-transit\",\n  \"currentLocation\": {\n    \"latitude\": 40.7128,\n    \"longitude\": -74.0060\n  }\n}"
+      },
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ jwt_token }}"
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "_type": "request"
+    },
+    {
+      "_id": "req_get_delivery_details",
+      "parentId": "fld_DeliveryService",
+      "modified": 1692297600000,
+      "name": "Get Delivery Details",
+      "url": "http://localhost:4900/api/delivery/:deliveryId",
+      "method": "GET",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ jwt_token }}"
+        }
+      ],
+      "_type": "request"
+    },
+    {
+      "_id": "req_get_all_deliveries",
+      "parentId": "fld_DeliveryService",
+      "modified": 1692297600000,
+      "name": "Get All Deliveries",
+      "url": "http://localhost:4900/api/delivery",
+      "method": "GET",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ jwt_token }}"
+        }
+      ],
+      "_type": "request"
+    },
+    {
+      "_id": "req_get_driver_deliveries",
+      "parentId": "fld_DeliveryService",
+      "modified": 1692297600000,
+      "name": "Get Driver Deliveries",
+      "url": "http://localhost:4900/api/delivery/driver/:driverId",
+      "method": "GET",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ jwt_token }}"
+        }
+      ],
+      "_type": "request"
+    },
+    {
+      "_id": "req_cancel_delivery",
+      "parentId": "fld_DeliveryService",
+      "modified": 1692297600000,
+      "name": "Cancel Delivery",
+      "url": "http://localhost:4900/api/delivery/:deliveryId/cancel",
+      "method": "PATCH",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{}"
+      },
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ jwt_token }}"
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "_type": "request"
+    }
+  ]
+}

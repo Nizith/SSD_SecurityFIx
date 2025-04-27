@@ -3,11 +3,19 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const connectDB = require('./config/db');
+const http = require('http');
+const { Server } = require('socket.io');
+const deliveryRoutes = require('./routes/deliveryRoutes');
 
 // Import routes
 
 // Initialize express app
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
+
+// Routes
+app.use('/api/delivery', deliveryRoutes);
 
 // Connect to MongoDB
 connectDB();
@@ -16,6 +24,26 @@ connectDB();
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
+
+// WebSocket setup
+io.on('connection', (socket) => {
+  console.log('A user connected');
+
+  socket.on('track-delivery', (deliveryId) => {
+    console.log(`Tracking delivery: ${deliveryId}`);
+    // Emit location updates (mocked for now)
+    setInterval(() => {
+      socket.emit('location-update', {
+        deliveryId,
+        location: { latitude: Math.random() * 90, longitude: Math.random() * 180 },
+      });
+    }, 5000);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('User disconnected');
+  });
+});
 
 // Routes
 
@@ -31,6 +59,6 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 3002;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Delivery service running on port ${PORT}`);
 });
