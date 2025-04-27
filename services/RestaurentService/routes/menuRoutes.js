@@ -6,7 +6,7 @@ const router = express.Router();
 
 // Public routes
 router.get('/:restaurantId/menu', menuController.getMenuItems);
-router.get('/:restaurantId/menu/:id', menuController.getMenuItemById);
+router.get('/:restaurantId/menu/:menuItemId', menuController.getMenuItemById);
 // test route
 router.get('/:id', menuController.getMenuItemById);
 router.get('/', menuController.getAllMenuItems);
