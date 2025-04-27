@@ -1,13 +1,17 @@
-const Restaurant = require('../models/restaurantModel');
-const { AUTH_SERVICE_URL } = require('../config/config');
-const axios = require('axios');
+const Restaurant = require("../models/restaurantModel");
+const { AUTH_SERVICE_URL } = require("../config/config");
+const axios = require("axios");
 
 // Create new restaurant
 const createRestaurant = async (req, res) => {
   try {
-    const existingRestaurant = await Restaurant.findOne({ ownerId: req.user.id });
+    const existingRestaurant = await Restaurant.findOne({
+      ownerId: req.user.id,
+    });
     if (existingRestaurant) {
-      return res.status(400).json({ message: 'User already owns a restaurant' });
+      return res
+        .status(400)
+        .json({ message: "User already owns a restaurant" });
     }
 
     const restaurant = new Restaurant({
@@ -20,7 +24,7 @@ const createRestaurant = async (req, res) => {
     // Update user role to 'restaurant' in AuthService
     await axios.patch(
       `${AUTH_SERVICE_URL}/api/users/update-role/${req.user.id}`,
-      { role: 'restaurant' },
+      { role: "restaurant" },
       { headers: { Authorization: req.headers.authorization } }
     );
 
@@ -33,16 +37,15 @@ const createRestaurant = async (req, res) => {
 // Get all restaurants
 const getAllRestaurants = async (req, res) => {
   try {
-    const restaurants = await Restaurant.find({ isVerified: true });
-    
-    res.json({
-      message: 'Restaurants fetched successfully',
-      total: restaurants.length,
-      data: restaurants
-    });
+    const restaurants = await Restaurant.find();
 
+    res.json({
+      message: "Restaurants fetched successfully",
+      total: restaurants.length,
+      data: restaurants,
+    });
   } catch (error) {
-    console.error('Error fetching restaurants:', error);
+    console.error("Error fetching restaurants:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -52,7 +55,7 @@ const getRestaurantById = async (req, res) => {
   try {
     const restaurant = await Restaurant.findById(req.params.id);
     if (!restaurant) {
-      return res.status(404).json({ message: 'Restaurant not found' });
+      return res.status(404).json({ message: "Restaurant not found" });
     }
     res.json(restaurant);
   } catch (error) {
@@ -64,23 +67,28 @@ const getRestaurantById = async (req, res) => {
 const updateRestaurant = async (req, res) => {
   try {
     const restaurant = await Restaurant.findById(req.params.id);
-    
+
     if (!restaurant) {
-      return res.status(404).json({ message: 'Restaurant not found' });
+      return res.status(404).json({ message: "Restaurant not found" });
     }
-    
+
     // Check ownership unless admin
-    if (req.user.role !== 'admin' && restaurant.ownerId.toString() !== req.user.id) {
-      return res.status(403).json({ message: 'Not authorized to update this restaurant' });
+    if (
+      req.user.role !== "admin" &&
+      restaurant.ownerId.toString() !== req.user.id
+    ) {
+      return res
+        .status(403)
+        .json({ message: "Not authorized to update this restaurant" });
     }
-    
+
     // Update fields
     const updatedRestaurant = await Restaurant.findByIdAndUpdate(
       req.params.id,
       { ...req.body, updatedAt: Date.now() },
       { new: true }
     );
-    
+
     res.json(updatedRestaurant);
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -91,18 +99,23 @@ const updateRestaurant = async (req, res) => {
 const deleteRestaurant = async (req, res) => {
   try {
     const restaurant = await Restaurant.findById(req.params.id);
-    
+
     if (!restaurant) {
-      return res.status(404).json({ message: 'Restaurant not found' });
+      return res.status(404).json({ message: "Restaurant not found" });
     }
-    
+
     // Check ownership unless admin
-    if (req.user.role !== 'admin' && restaurant.ownerId.toString() !== req.user.id) {
-      return res.status(403).json({ message: 'Not authorized to delete this restaurant' });
+    if (
+      req.user.role !== "admin" &&
+      restaurant.ownerId.toString() !== req.user.id
+    ) {
+      return res
+        .status(403)
+        .json({ message: "Not authorized to delete this restaurant" });
     }
-    
+
     await Restaurant.findByIdAndDelete(req.params.id);
-    res.json({ message: 'Restaurant deleted successfully' });
+    res.json({ message: "Restaurant deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -112,19 +125,21 @@ const deleteRestaurant = async (req, res) => {
 const toggleAvailability = async (req, res) => {
   try {
     const restaurant = await Restaurant.findById(req.params.id);
-    
+
     if (!restaurant) {
-      return res.status(404).json({ message: 'Restaurant not found' });
+      return res.status(404).json({ message: "Restaurant not found" });
     }
-    
+
     // Check ownership
     if (restaurant.ownerId.toString() !== req.user.id) {
-      return res.status(403).json({ message: 'Not authorized to update this restaurant' });
+      return res
+        .status(403)
+        .json({ message: "Not authorized to update this restaurant" });
     }
-    
+
     restaurant.isOpen = !restaurant.isOpen;
     await restaurant.save();
-    
+
     res.json({ isOpen: restaurant.isOpen });
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -135,15 +150,15 @@ const toggleAvailability = async (req, res) => {
 const verifyRestaurant = async (req, res) => {
   try {
     const restaurant = await Restaurant.findById(req.params.id);
-    
+
     if (!restaurant) {
-      return res.status(404).json({ message: 'Restaurant not found' });
+      return res.status(404).json({ message: "Restaurant not found" });
     }
-    
+
     restaurant.isVerified = true;
     await restaurant.save();
-    
-    res.json({ message: 'Restaurant verified successfully' });
+
+    res.json({ message: "Restaurant verified successfully" });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -164,7 +179,9 @@ const getRestaurantByOwner = async (req, res) => {
   try {
     const restaurant = await Restaurant.findOne({ ownerId: req.user.id });
     if (!restaurant) {
-      return res.status(404).json({ message: 'No restaurant found for this user' });
+      return res
+        .status(404)
+        .json({ message: "No restaurant found for this user" });
     }
     res.json(restaurant);
   } catch (error) {
@@ -181,5 +198,5 @@ module.exports = {
   toggleAvailability,
   verifyRestaurant,
   getPendingRestaurants,
-  getRestaurantByOwner
+  getRestaurantByOwner,
 };
