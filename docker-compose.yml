@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  auth-service:
+    build:
+      context: ./services/AuthService
+      dockerfile: Dockerfile
+    ports:
+      - "4800:3001" # Map port 4800 on the host to 3001 in the container
+    environment:
+      - PORT=3001
+      - MONDODB_URL=mongodb://mongo:27017/authservice
+      - JWT_SECRET=nizithDS227
+      - JWT_EXPIRE=1h
+      - ADMIN_REGISTRATION_KEY=FoodsysAdminDS27
+    depends_on:
+      - mongo
+
+  restaurant-service:
+    build:
+      context: ./services/RestaurentService
+      dockerfile: Dockerfile
+    ports:
+      - "4700:3002" # Map port 4700 on the host to 3002 in the container
+    environment:
+      - PORT=3002
+      - MONDODB_URL=mongodb://mongo:27017/restaurantservice
+      - AUTH_SERVICE_URL=http://auth-service:3001
+    depends_on:
+      - mongo
+      - auth-service
+
+  mongo:
+    image: mongo:6.0
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:
