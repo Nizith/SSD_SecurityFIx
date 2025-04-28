@@ -1,5 +1,8 @@
 const CartItem = require("../models/cartItemModel");
 const Order = require("../models/orderModel");
+const sendEmail = require('../utils/emailService');
+const axios = require("axios");
+
 
 exports.placeOrder = async (req, res) => {
   const userId = req.user.id;
@@ -10,61 +13,60 @@ exports.placeOrder = async (req, res) => {
     addressStreet,
     longitude,
     latitude,
-    deliveryCharge
+    deliveryCharge,
   } = req.body;
 
   if (
-    !restaurantId || !paymentMethod ||
-    !addressNo || !addressStreet ||
-    typeof longitude !== "number" || typeof latitude !== "number" ||
-    typeof deliveryCharge !== "number"
+    !restaurantId ||
+    !paymentMethod ||
+    !addressNo ||
+    !addressStreet ||
+    typeof longitude !== 'number' ||
+    typeof latitude !== 'number' ||
+    typeof deliveryCharge !== 'number'
   ) {
-    return res.status(400).json({ message: "Missing or invalid order details" });
+    return res.status(400).json({ message: 'Missing or invalid order details' });
   }
 
   try {
-    // Get cart items for the user and restaurant
+    // Log debugging information
+    console.log("Finding cart items for userId:", userId, "restaurantId:", restaurantId);
+    
+    // Check if cart items exist for the user
+    const userCartItems = await CartItem.find({ userId });
+    console.log(`User has ${userCartItems.length} total cart items`);
+    
+    // Get cart items for this restaurant
     const cartItems = await CartItem.find({ userId, restaurantId });
+    console.log(`Found ${cartItems.length} cart items for this restaurant`);
 
     if (!cartItems.length) {
-      return res.status(400).json({ message: "No items in cart for this restaurant" });
+      return res.status(400).json({ 
+        message: 'No items in cart for this restaurant',
+        debug: {
+          userId,
+          restaurantId,
+          totalUserCartItems: userCartItems.length,
+          userCartRestaurants: [...new Set(userCartItems.map(item => 
+            item.restaurantId ? item.restaurantId.toString() : 'undefined'
+          ))]
+        }
+      });
     }
 
-    // Fetch menu item details using axios
-    const menuItemDetailsPromises = cartItems.map(async (item) => {
-      try {
-        const response = await axios.get(`http://localhost:4700/api/menu/${item.menuItemId}`);
-        return response.data; // Menu item details
-      } catch (error) {
-        console.error(`Error fetching menu item details for ${item.menuItemId}:`, error.message);
-        return null; // Return null if there's an error fetching the menu item
-      }
-    });
-
-    const menuItems = await Promise.all(menuItemDetailsPromises);
-
-    // Calculate subtotal and total amount
     const subtotal = cartItems.reduce((sum, item) => sum + item.totalPrice, 0);
     const totalAmount = subtotal + deliveryCharge;
 
-    // Map cart items with fetched menu item details
-    const items = cartItems.map((item, index) => {
-      const menuItem = menuItems[index];
-      return {
+    const order = new Order({
+      userId,
+      restaurantId,
+      items: cartItems.map(item => ({
         menuItem: item.menuItemId,
         name: item.name,
         quantity: item.quantity,
         price: item.price,
-        totalPrice: item.totalPrice,
-        menuItemDetails: menuItem ? menuItem : null, // Append menu item details or null if not found
-      };
-    });
-
-    // Create the new order
-    const order = new Order({
-      userId,
-      restaurantId,
-      items,
+        totalPrice: item.totalPrice
+      })),
       subtotal,
       deliveryCharge,
       totalAmount,
@@ -77,19 +79,42 @@ exports.placeOrder = async (req, res) => {
         longitude,
         latitude,
       },
-      status: "Pending",
+      status: 'Pending',
     });
 
-    await order.save();
-    await CartItem.deleteMany({ userId, restaurantId }); // Clear the cart after order is placed
+    const savedOrder = await order.save();
+    await CartItem.deleteMany({ userId, restaurantId });
 
-    res.status(201).json({ message: "Order placed successfully", order });
+    // Send enhanced confirmation email
+    try {
+      const userEmail = req.user.email;
+      if (userEmail) {
+        await sendEmail(
+          userEmail, 
+          'Your Order Confirmation', 
+          savedOrder
+        );
+        console.log('Order confirmation email sent to:', userEmail);
+      } else {
+        console.log('No email found for user:', userId);
+      }
+    } catch (emailError) {
+      console.error('Failed to send email:', emailError);
+      // Continue with the order response even if email fails
+    }
+
+    res.status(201).json({ 
+      message: 'Order placed successfully', 
+      order: savedOrder,
+      emailSent: !!req.user.email 
+    });
   } catch (error) {
-    console.error("Place order error:", error);
-    res.status(500).json({ message: "Server error" });
+    console.error('Place order error:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
-  
+
+
   //Get a order By ID
   exports.getOrderById = async (req, res) => {
     const { id } = req.params;
@@ -318,3 +343,38 @@ exports.deleteOrder = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+// Send payment success email
+exports.sendPaymentEmail = async (req, res) => {
+  const { orderId } = req.body;
+
+  try {
+    const order = await Order.findById(orderId);
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    const userEmail = req.user.email;
+    if (userEmail) {
+      await sendEmail(
+        userEmail,
+        'Payment Successful',
+        {
+          ...order.toObject(),
+          status: 'Payment Successful',
+        }
+      );
+      res.status(200).json({ message: 'Payment email sent successfully' });
+    } else {
+      res.status(400).json({ message: 'User email not found' });
+    }
+  } catch (error) {
+    console.error('Error sending payment email:', error.message);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+
+
+
+
