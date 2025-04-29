@@ -1,6 +1,7 @@
 const Delivery = require('../models/deliveryModel');
 const Driver = require('../models/driverModel');
 const axios = require('axios'); // To interact with the Order Service
+const { AUTH_SERVICE_URL } = require("../config/config");
 
 const ORDER_SERVICE_URL = 'http://localhost:5000/api/order'; // Base URL for Order Service
 
@@ -23,15 +24,15 @@ const registerDriver = async (req, res) => {
 
     try {
       // Check if AUTH_SERVICE_URL is configured
-      if (!process.env.AUTH_SERVICE_URL) {
+      if (!AUTH_SERVICE_URL) {
         console.warn('AUTH_SERVICE_URL environment variable is not set');
       }
       
-      console.log(`Calling Auth Service at: ${process.env.AUTH_SERVICE_URL}/api/users/update-role/${userId}`);
+      console.log(`Calling Auth Service at: ${AUTH_SERVICE_URL}/api/users/update-role/${userId}`);
       
       // Call Auth Service to update the user's role to 'delivery'
       const authResponse = await axios.patch(
-        `${process.env.AUTH_SERVICE_URL}/api/users/update-role/${userId}`,
+        `${AUTH_SERVICE_URL}/api/users/update-role/${userId}`,
         { role: 'delivery' },
         { 
           headers: { 

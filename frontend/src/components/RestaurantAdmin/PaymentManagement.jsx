@@ -51,7 +51,7 @@ export default function PaymentManagement() {
                   {payment.status === "pending" && (
                     <button
                       onClick={() => completePayment(payment.id)}
-                      className="text-white bg-green-500 hover:bg-green-600 px-3 py-1 rounded text-sm"
+                      className="text-white bg-green-600 hover:bg-green-700 px-3 py-1 rounded text-sm"
                     >
                       Mark Paid
                     </button>

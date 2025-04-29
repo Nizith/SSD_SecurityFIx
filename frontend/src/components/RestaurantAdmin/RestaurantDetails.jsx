@@ -153,15 +153,15 @@ export default function RestaurantDetails({ restaurant, setRestaurant, apiBaseUr
                         </span>
                     </p>
                     <div className="flex space-x-2">
-                        <button onClick={() => setIsEditing(true)} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+                        <button onClick={() => setIsEditing(true)} className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded">
                             Edit
                         </button>
-                        <button onClick={deleteRestaurant} className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">
+                        <button onClick={deleteRestaurant} className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded">
                             Delete
                         </button>
                         <button
                             onClick={toggleAvailability}
-                            className={`text-white px-4 py-2 rounded ${restaurant.isAvailable ? "bg-red-500 hover:bg-red-600" : "bg-green-500 hover:bg-green-600"
+                            className={`text-white px-4 py-2 rounded ${restaurant.isAvailable ? "bg-red-500 hover:bg-red-600" : "bg-green-600 hover:bg-green-700"
                                 }`}
                         >
                             {restaurant.isAvailable ? "Mark Unavailable" : "Mark Available"}

@@ -70,7 +70,7 @@ export default function CurtainSections() {
     e.preventDefault();
 
     // Get the user ID and location from localStorage or set default values
-    const userId = localStorage.getItem("userId");
+    const userId = localStorage.getItem("id");
     
     // Create a properly structured request body that matches the backend expectations
     const driverData = {
@@ -100,7 +100,7 @@ export default function CurtainSections() {
       if (response.ok) {
         alert("Driver registered successfully!");
         localStorage.setItem("role", "delivery");
-        window.location.href = "/delivery-dashboard"; // Redirect to DeliveryDashboard
+        window.location.href = "/delivery-personnel-dashboard"; // Redirect to DeliveryDashboard
       } else {
         const errorData = await response.json();
         console.error("Registration error response:", errorData);
