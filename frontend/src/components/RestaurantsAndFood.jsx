@@ -3,41 +3,31 @@ import axios from "axios";
 import Footer from "./Footer";
 import Header2 from "./Header2";
 import { ShoppingCart, Utensils, Package, Clock } from "lucide-react";
+import { toast } from "react-toastify";
 
 export default function RestaurantsAndFood() {
   const [activeTab, setActiveTab] = useState("browse");
   const [cart, setCart] = useState([]);
   const [orders, setOrders] = useState([]);
-  const [restaurants, setRestaurants] = useState([]); // State for restaurants
-  const [selectedRestaurant, setSelectedRestaurant] = useState(null); // Selected restaurant
-  const [foodItems, setFoodItems] = useState([]); // State for menu items
-  const [loading, setLoading] = useState(false); // Loading state
-  const [error, setError] = useState(null); // Error state
+  const [restaurants, setRestaurants] = useState([]);
+  const [selectedRestaurant, setSelectedRestaurant] = useState(null);
+  const [foodItems, setFoodItems] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  // Retrieve the JWT token from localStorage
   const token = localStorage.getItem("token");
-
-  // Axios instance with Authorization header
   const axiosInstance = axios.create({
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
 
-  // Fetch restaurants on component mount
   useEffect(() => {
     const fetchRestaurants = async () => {
       try {
-        const response = await axiosInstance.get(
-          "http://localhost:4700/api/restaurants/all"
-        );
-        console.log("Backend Response:", response.data); // Debugging: Log the response
-        setRestaurants(response.data.data); // Update state with fetched restaurants
-      } catch (error) {
-        console.error(
-          "Error fetching restaurants:",
-          error.response?.data || error.message
-        );
+        const response = await axiosInstance.get("http://localhost:4700/api/restaurants/all");
+        setRestaurants(response.data.data);
+      } catch (err) {
         setError("Failed to load restaurants. Please try again later.");
       }
     };
@@ -45,7 +35,6 @@ export default function RestaurantsAndFood() {
     fetchRestaurants();
   }, []);
 
-  // Fetch menu items when a restaurant is selected
   useEffect(() => {
     if (!selectedRestaurant) return;
 
@@ -55,11 +44,10 @@ export default function RestaurantsAndFood() {
         const response = await axiosInstance.get(
           `http://localhost:4700/api/menu/${selectedRestaurant._id}/menu`
         );
-        setFoodItems(response.data); // Update state with fetched menu items
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching menu items:", error);
+        setFoodItems(response.data);
+      } catch (err) {
         setError("Failed to load menu items. Please try again later.");
+      } finally {
         setLoading(false);
       }
     };
@@ -67,8 +55,19 @@ export default function RestaurantsAndFood() {
     fetchMenuItems();
   }, [selectedRestaurant]);
 
-  const addToCart = (item) => {
-    setCart([...cart, item]);
+  const addToCart = async (item) => {
+    try {
+      const response = await axiosInstance.post("http://localhost:5000/api/cart/add", {
+        menuItemId: item._id,
+        quantity: 1,
+      });
+      if (response.status === 201) {
+        toast.success("Item added to cart successfully!");
+      }
+    } catch (err) {
+      toast.error("Failed to add item to cart. Please try again later.");
+      console.error(err);
+    }
   };
 
   const removeFromCart = (index) => {
@@ -157,7 +156,7 @@ export default function RestaurantsAndFood() {
                       <h3 className="text-lg font-semibold">
                         {restaurant.name}
                       </h3>
-                      <p className="text-gray-600">{restaurant.address.city}</p>
+                      <p className="text-gray-600">{restaurant.address?.city || "City not available"}</p>
                       <p className="text-gray-600">
                         Rating: {restaurant.rating} / 5
                       </p>
@@ -222,9 +221,7 @@ export default function RestaurantsAndFood() {
           )}
         </div>
       </div>
-      {/* <div className=""> */}
-        <Footer />
-      {/* </div> */}
+      <Footer />
     </>
   );
 }
