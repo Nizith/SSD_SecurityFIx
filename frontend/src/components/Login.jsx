@@ -60,7 +60,7 @@ export default function Login() {
             navigate("/restaurant-admin-dashboard");
             break;
           case "delivery":
-            navigate("/delivery-dashboard");
+            navigate("/delivery-personnel-dashboard");
             break;
           default:
             toast.error("Unauthorized role!");

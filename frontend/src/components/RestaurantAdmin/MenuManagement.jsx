@@ -131,7 +131,7 @@ export default function MenuManagement({ restaurantId, apiBaseUrl }) {
         <h2 className="text-xl font-semibold text-gray-800">Menu Items</h2>
         <button
           onClick={() => setIsAdding(true)}
-          className="bg-lime-500 hover:bg-lime-600 text-white px-4 py-2 rounded"
+          className="bg-[#008083] hover:bg-[#005f60] text-white px-4 py-2 rounded"
         >
           Add New Item
         </button>
@@ -249,7 +249,7 @@ export default function MenuManagement({ restaurantId, apiBaseUrl }) {
                     <button
                       onClick={() => toggleMenuItemAvailability(item._id)}
                       className={`text-white px-3 py-1 rounded text-sm ${
-                        item.isAvailable ? "bg-red-500 hover:bg-red-600" : "bg-green-500 hover:bg-green-600"
+                        item.isAvailable ? "bg-red-500 hover:bg-red-600" : "bg-green-600 hover:bg-green-700"
                       }`}
                     >
                       {item.isAvailable ? "Mark Unavailable" : "Mark Available"}
@@ -263,13 +263,13 @@ export default function MenuManagement({ restaurantId, apiBaseUrl }) {
                           price: item.price,
                         });
                       }}
-                      className="text-white bg-blue-500 hover:bg-blue-600 px-3 py-1 rounded text-sm"
+                      className="text-white bg-yellow-500 hover:bg-yellow-600 px-3 py-1 rounded text-sm"
                     >
                       Edit
                     </button>
                     <button
                       onClick={() => deleteMenuItem(item._id)}
-                      className="text-white bg-red-500 hover:bg-red-600 px-3 py-1 rounded text-sm"
+                      className="text-white bg-orange-500 hover:bg-orange-600 px-3 py-1 rounded text-sm"
                     >
                       Delete
                     </button>
