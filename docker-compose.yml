@@ -4,39 +4,86 @@ services:
   auth-service:
     build:
       context: ./services/AuthService
-      dockerfile: Dockerfile
     ports:
-      - "4800:3001" # Map port 4800 on the host to 3001 in the container
+      - "3001:3001"
     environment:
       - PORT=3001
-      - MONDODB_URL=mongodb://mongo:27017/authservice
-      - JWT_SECRET=nizithDS227
-      - JWT_EXPIRE=1h
-      - ADMIN_REGISTRATION_KEY=FoodsysAdminDS27
+      - MONDODB_URL=mongodb://mongodb:27017/auth-service # MongoDB connection string
+      - JWT_SECRET=your_jwt_secret # Replace with your JWT secret
+      - JWT_EXPIRE=1d # JWT expiration time
+      - ADMIN_REGISTRATION_KEY=your_admin_key # Replace with your admin registration key
     depends_on:
-      - mongo
+      - database
 
   restaurant-service:
     build:
       context: ./services/RestaurentService
-      dockerfile: Dockerfile
     ports:
-      - "4700:3002" # Map port 4700 on the host to 3002 in the container
+      - "3002:3002"
     environment:
       - PORT=3002
-      - MONDODB_URL=mongodb://mongo:27017/restaurantservice
+      - MONDODB_URL=mongodb://mongodb:27017/restaurant-service
+      - JWT_SECRET=your_jwt_secret
+      - JWT_EXPIRE=1d
+      - ADMIN_REGISTRATION_KEY=your_admin_key
       - AUTH_SERVICE_URL=http://auth-service:3001
     depends_on:
-      - mongo
+      - database
       - auth-service
 
-  mongo:
-    image: mongo:6.0
+  delivery-service:
+    build:
+      context: ./services/DeliveryService
+    ports:
+      - "3003:3003"
+    environment:
+      - PORT=3003
+      - MONDODB_URL=mongodb://mongodb:27017/delivery-service
+      - JWT_SECRET=your_jwt_secret
+      - JWT_EXPIRE=1d
+      - ADMIN_REGISTRATION_KEY=your_admin_key
+      - AUTH_SERVICE_URL=http://auth-service:3001
+    depends_on:
+      - database
+      - auth-service
+
+  order-service:
+    build:
+      context: ./services/OrderService
+    ports:
+      - "3004:3004"
+    environment:
+      - PORT=3004
+      - MONDODB_URL=mongodb://mongodb:27017/order-service
+      - JWT_SECRET=your_jwt_secret
+      - JWT_EXPIRE=1d
+      - ADMIN_REGISTRATION_KEY=your_admin_key
+      - AUTH_SERVICE_URL=http://auth-service:3001
+    depends_on:
+      - database
+      - auth-service
+
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - auth-service
+      - restaurant-service
+      - delivery-service
+      - order-service
+
+  database:
+    image: mongo:6
     container_name: mongodb
     ports:
       - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
     volumes:
-      - mongo-data:/data/db
+      - mongo_data:/data/db
 
 volumes:
-  mongo-data:
+  mongo_data:

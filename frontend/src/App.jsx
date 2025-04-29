@@ -10,6 +10,7 @@ import Cart from "./components/Cart";
 import TrackOrders from "./components/TrackOrders";
 import RestaurantAdminDashboard from "./components/RestaurantAdminDashboard";
 import DeliveryPersonnelDashboard from "./components/DeliveryPersonnelDashboard";
+import DeliveryDashboard from "./components/DeliveryDashboard";
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
           <Route path='/track-orders' element={<TrackOrders />} />
           <Route path='/restaurant-admin-dashboard' element={<RestaurantAdminDashboard />} />
           <Route path='/delivery-personnel-dashboard' element={<DeliveryPersonnelDashboard />} />
+          <Route path='/delivery-dashboard' element={<DeliveryDashboard />} />
         </Routes>
       </BrowserRouter>
     </>

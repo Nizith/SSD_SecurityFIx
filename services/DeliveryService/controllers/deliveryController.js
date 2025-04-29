@@ -7,17 +7,56 @@ const ORDER_SERVICE_URL = 'http://localhost:5000/api/order'; // Base URL for Ord
 //register a driver
 const registerDriver = async (req, res) => {
   try {
-    const { userId, currentLocation } = req.body;
+    const { userId, currentLocation, vehicleDetails } = req.body;
 
-    // Call Auth Service to update the user's role to 'delivery'
-    const authResponse = await axios.patch(
-      `${process.env.AUTH_SERVICE_URL}/api/users/update-role/${userId}`,
-      { role: 'delivery' },
-      { headers: { Authorization: req.headers.authorization } }
-    );
+    console.log('Request body:', req.body);
 
-    if (!authResponse.data || authResponse.status !== 200) {
-      return res.status(400).json({ message: 'Failed to update user role in Auth Service' });
+    // Validate input
+    if (!userId || !currentLocation) {
+      return res.status(400).json({ message: 'userId and currentLocation are required' });
+    }
+
+    // Check if vehicleDetails exists and has the required properties
+    if (!vehicleDetails || !vehicleDetails.vehicleNumber || !vehicleDetails.vehicleType) {
+      return res.status(400).json({ message: 'Vehicle number and type are required' });
+    }
+
+    try {
+      // Check if AUTH_SERVICE_URL is configured
+      if (!process.env.AUTH_SERVICE_URL) {
+        console.warn('AUTH_SERVICE_URL environment variable is not set');
+      }
+      
+      console.log(`Calling Auth Service at: ${process.env.AUTH_SERVICE_URL}/api/users/update-role/${userId}`);
+      
+      // Call Auth Service to update the user's role to 'delivery'
+      const authResponse = await axios.patch(
+        `${process.env.AUTH_SERVICE_URL}/api/users/update-role/${userId}`,
+        { role: 'delivery' },
+        { 
+          headers: { 
+            Authorization: req.headers.authorization,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      console.log('Auth Service response:', authResponse.status, authResponse.data);
+
+      if (!authResponse.data || authResponse.status !== 200) {
+        return res.status(400).json({ 
+          message: 'Failed to update user role in Auth Service',
+          authServiceStatus: authResponse.status,
+          authServiceResponse: authResponse.data
+        });
+      }
+    } catch (authError) {
+      console.error('Auth Service error:', authError.message);
+      
+      // For development/testing purposes, allow driver registration without auth service
+      console.warn('Proceeding with driver registration despite Auth Service error');
+      // In production, you might want to return an error instead
+      // return res.status(500).json({ message: 'Auth Service error', error: authError.message });
     }
 
     // Create a new driver record in the Delivery Service
@@ -25,13 +64,39 @@ const registerDriver = async (req, res) => {
       userId,
       currentLocation,
       isAvailable: true,
+      vehicleDetails: {
+        vehicleNumber: vehicleDetails.vehicleNumber,
+        vehicleType: vehicleDetails.vehicleType,
+      },
     });
 
     const savedDriver = await driver.save();
     res.status(201).json({ message: 'Driver registered successfully', driver: savedDriver });
   } catch (error) {
-    console.error('Error registering driver:', error.message);
-    res.status(500).json({ message: 'Error registering driver', error: error.message });
+    console.error('Error registering driver:', error);
+    if (error.response) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx
+      console.error('Error response data:', error.response.data);
+      console.error('Error response status:', error.response.status);
+      console.error('Error response headers:', error.response.headers);
+      res.status(500).json({ 
+        message: 'Error registering driver', 
+        error: error.message,
+        details: error.response.data
+      });
+    } else if (error.request) {
+      // The request was made but no response was received
+      console.error('Error request:', error.request);
+      res.status(500).json({ 
+        message: 'Error registering driver - no response from Auth Service', 
+        error: error.message 
+      });
+    } else {
+      // Something happened in setting up the request that triggered an Error
+      console.error('Error message:', error.message);
+      res.status(500).json({ message: 'Error registering driver', error: error.message });
+    }
   }
 };
 

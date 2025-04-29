@@ -14,16 +14,16 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
+// Middleware
+app.use(express.json());
+app.use(helmet());
+app.use(cors());
+
 // Routes
 app.use('/api/delivery', deliveryRoutes);
 
 // Connect to MongoDB
 connectDB();
-
-// Middleware
-app.use(helmet());
-app.use(cors());
-app.use(express.json());
 
 // WebSocket setup
 io.on('connection', (socket) => {

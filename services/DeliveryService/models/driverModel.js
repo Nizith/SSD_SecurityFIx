@@ -18,6 +18,16 @@ const driverSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  vehicleDetails: {
+    vehicleNumber: {
+      type: String,
+      required: true,
+    },
+    vehicleType: {
+      type: String,
+      required: true,
+    },
+  },
 });
 
 module.exports = mongoose.model('Driver', driverSchema);

@@ -1,113 +1,99 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import Footer from "./Footer";
 import Header2 from "./Header2";
 import { ShoppingCart } from "lucide-react";
 
 export default function Cart() {
   const [cart, setCart] = useState([]);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  const removeFromCart = (index) => {
-    const newCart = [...cart];
-    newCart.splice(index, 1);
-    setCart(newCart);
-  };
+  const token = localStorage.getItem("token");
+  const axiosInstance = axios.create({
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 
-  const placeOrder = () => {
-    if (cart.length === 0) return;
-
-    const newOrder = {
-      id: orders.length + 1,
-      restaurant: cart[0].restaurant,
-      items: cart.map((item) => item.name),
-      status: "Order placed",
-      estimatedTime: "25-35 min",
+  useEffect(() => {
+    const fetchCart = async () => {
+      setLoading(true);
+      try {
+        const response = await axiosInstance.get("http://localhost:5000/api/cart");
+        setCart(response.data);
+      } catch (err) {
+        setError("Failed to load cart items. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
     };
 
-    setOrders([newOrder, ...orders]);
-    setCart([]);
-    setActiveTab("track");
+    fetchCart();
+  }, []);
+
+  const removeFromCart = async (itemId) => {
+    try {
+      await axiosInstance.delete(`http://localhost:5000/api/cart/${itemId}`);
+      setCart(cart.filter((item) => item._id !== itemId));
+    } catch (err) {
+      setError("Failed to remove item from cart. Please try again later.");
+    }
   };
+
+  const placeOrder = async () => {
+    if (cart.length === 0) return;
+
+    try {
+      const response = await axiosInstance.post("http://localhost:5000/api/orderxx`x", {
+        items: cart.map((item) => ({
+          menuItemId: item.menuItemId,
+          quantity: item.quantity,
+        })),
+      });
+      alert("Order placed successfully!");
+      setCart([]);
+    } catch (err) {
+      setError("Failed to place order. Please try again later.");
+    }
+  };
+
   return (
     <>
+      <Header2 />
       <div className="container mx-auto px-4 py-4">
-        <Header2 />
-      </div>
-      <div className="container mx-auto px-4 flex-grow pb-24">
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h1 className="text-2xl font-bold">Your Cart</h1>
+        {error && <p className="text-red-500">{error}</p>}
+        {loading ? (
+          <p>Loading...</p>
+        ) : cart.length === 0 ? (
+          <p>Your cart is empty.</p>
+        ) : (
           <div>
-            {cart.length === 0 ? (
-              <div className="text-center py-6">
-                <ShoppingCart
-                  size={48}
-                  className="mx-auto text-gray-400 mb-2"
-                />
-                <p className="text-gray-600">Your cart is empty</p>
+            {cart.map((item) => (
+              <div key={item._id} className="flex justify-between items-center border-b py-2">
+                <div>
+                  <h2>{item.name}</h2>
+                  <p>Quantity: {item.quantity}</p>
+                </div>
                 <button
-                  onClick={() => setActiveTab("browse")}
-                  className="mt-4 bg-[#008083] text-white px-4 py-2 rounded-lg hover:bg-[#005f60] transition-colors"
+                  onClick={() => removeFromCart(item._id)}
+                  className="text-red-500 hover:text-red-700"
                 >
-                  Browse Food
+                  Remove
                 </button>
               </div>
-            ) : (
-              <>
-                <div className="border-b border-gray-200 pb-4 mb-4">
-                  <h2 className="text-xl font-semibold mb-4">Your Cart</h2>
-                  {cart.map((item, index) => (
-                    <div
-                      key={index}
-                      className="flex justify-between items-center py-3 border-b border-gray-100 last:border-b-0"
-                    >
-                      <div className="flex items-center">
-                        <img
-                          src={item.image}
-                          alt={item.name}
-                          className="w-12 h-12 object-cover rounded-md mr-4"
-                        />
-                        <div>
-                          <h3 className="font-medium">{item.name}</h3>
-                          <p className="text-gray-600 text-sm">
-                            {item.restaurant}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center">
-                        <span className="font-medium mr-4">
-                          ${item.price.toFixed(2)}
-                        </span>
-                        <button
-                          onClick={() => removeFromCart(index)}
-                          className="text-red-500 hover:text-red-700"
-                        >
-                          Remove
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="flex justify-between items-center mb-6">
-                  <span className="text-lg font-semibold">Total:</span>
-                  <span className="text-xl font-bold text-[#008083]">
-                    $
-                    {cart.reduce((sum, item) => sum + item.price, 0).toFixed(2)}
-                  </span>
-                </div>
-
-                <button
-                  onClick={placeOrder}
-                  className="w-full bg-[#008083] text-white py-3 rounded-lg font-medium hover:bg-[#005f60] transition-colors"
-                >
-                  Place Order
-                </button>
-              </>
-            )}
+            ))}
+            <button
+              onClick={placeOrder}
+              className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            >
+              Place Order
+            </button>
           </div>
-        </div>
+        )}
       </div>
-      {/* <div className="mt-[100px]"> */}
-        <Footer />
-      {/* </div> */}
+      <Footer />
     </>
   );
 }
