@@ -8,10 +8,9 @@ import RestaurantsAndFood from "./components/RestaurantsAndFood";
 import Contact from "./components/Contact";
 import Cart from "./components/Cart";
 import TrackOrders from "./components/TrackOrders";
-import RestaurantAdminDashboard from "./components/RestaurantAdminDashboard";
 import DeliveryPersonnelDashboard from "./components/DeliveryPersonnelDashboard";
-import DeliveryDashboard from "./components/DeliveryDashboard";
 import PaymentPage from "./components/PaymentPage";
+import RestaurantAdminDashboard from "./components/RestaurantAdmin/RestaurantAdminDashboard";
 
 function App() {
   return (
@@ -28,7 +27,6 @@ function App() {
           <Route path='/track-orders' element={<TrackOrders />} />
           <Route path='/restaurant-admin-dashboard' element={<RestaurantAdminDashboard />} />
           <Route path='/delivery-personnel-dashboard' element={<DeliveryPersonnelDashboard />} />
-          <Route path='/delivery-dashboard' element={<DeliveryDashboard />} />
           <Route path='/payment' element={<PaymentPage />} />      
         </Routes>
       </BrowserRouter>

@@ -49,7 +49,7 @@ export default function SignUp() {
 
     try {
       const response = await axios.post(
-        "http://localhost:4900/api/auth/register",
+        "http://localhost:4800/api/auth/register",
         {
           name: SignupData.name,
           email: SignupData.email,
