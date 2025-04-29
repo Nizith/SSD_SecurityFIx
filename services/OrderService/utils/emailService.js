@@ -30,6 +30,9 @@ const sendEmail = async (to, subject, order) => {
       </tr>
     `).join('');
 
+    // Create payment URL
+    const paymentUrl = `http://localhost:5173/payment?orderId=${order._id}&amount=${order.totalAmount}&currency=LKR`;
+
     // Create HTML email content
     const htmlContent = `
       <!DOCTYPE html>
@@ -90,7 +93,8 @@ const sendEmail = async (to, subject, order) => {
         </div>
         
         <div style="margin-top: 20px; text-align: center;">
-          <a href="https://sandbox.payhere.lk/pay/checkout?merchant_id=${process.env.MERCHANT_ID}&return_url=http://localhost:5100/api/payment/success&cancel_url=http://localhost:5100/api/payment/cancel&notify_url=http://localhost:5100/api/payment/notify&order_id=${order._id}&items=Order%20${order._id}&amount=${order.totalAmount}&currency=LKR&first_name=John&last_name=Doe&email=${order.userEmail}&phone=0771234567&address=No%20Address&city=Colombo&country=Sri%20Lanka" style="background-color: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Make Payment</a>
+          <p>Thank you for your order! Please complete your payment by clicking the button below:</p>
+          <a href="${paymentUrl}" style="background-color: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Make Payment</a>
         </div>
         
         <div style="background-color: #f8f9fa; padding: 20px; border-radius: 5px; margin-top: 20px;">
