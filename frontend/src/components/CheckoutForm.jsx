@@ -86,7 +86,9 @@ export default function CheckoutForm({ orderId, clientSecret, amount }) {
         <form onSubmit={handleSubmit} className="space-y-6">
           {amount && (
             <div className="bg-gray-50 p-4 rounded-md mb-4">
+              <p className="text-gray-700">Order ID: <span className="font-bold">{orderId}</span></p>
               <p className="text-gray-700">Total Amount: <span className="font-bold">${(amount / 100).toFixed(2)}</span></p>
+
             </div>
           )}
           
