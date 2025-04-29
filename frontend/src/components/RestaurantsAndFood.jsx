@@ -14,6 +14,7 @@ export default function RestaurantsAndFood() {
   const [foodItems, setFoodItems] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [cartTotal, setCartTotal] = useState(0);
 
   const token = localStorage.getItem("token");
   const axiosInstance = axios.create({
@@ -33,6 +34,8 @@ export default function RestaurantsAndFood() {
     };
 
     fetchRestaurants();
+    fetchCart();
+    fetchOrders();
   }, []);
 
   useEffect(() => {
@@ -55,6 +58,38 @@ export default function RestaurantsAndFood() {
     fetchMenuItems();
   }, [selectedRestaurant]);
 
+  // Calculate cart total whenever cart changes
+  useEffect(() => {
+    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    setCartTotal(total);
+  }, [cart]);
+
+  const fetchCart = async () => {
+    setLoading(true);
+    try {
+      const response = await axiosInstance.get("http://localhost:5000/api/cart");
+      setCart(response.data);
+    } catch (err) {
+      setError("Failed to load cart items. Please try again later.");
+      console.error("Failed to fetch cart:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchOrders = async () => {
+    setLoading(true);
+    try {
+      const response = await axiosInstance.get("http://localhost:5000/api/order");
+      setOrders(response.data);
+    } catch (err) {
+      setError("Failed to load orders. Please try again later.");
+      console.error("Failed to fetch orders:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const addToCart = async (item) => {
     try {
       const response = await axiosInstance.post("http://localhost:5000/api/cart/add", {
@@ -63,6 +98,7 @@ export default function RestaurantsAndFood() {
       });
       if (response.status === 201) {
         toast.success("Item added to cart successfully!");
+        fetchCart(); // Refresh cart after adding item
       }
     } catch (err) {
       toast.error("Failed to add item to cart. Please try again later.");
@@ -70,26 +106,69 @@ export default function RestaurantsAndFood() {
     }
   };
 
-  const removeFromCart = (index) => {
-    const newCart = [...cart];
-    newCart.splice(index, 1);
-    setCart(newCart);
+  const removeFromCart = async (itemId) => {
+    try {
+      await axiosInstance.delete(`http://localhost:5000/api/cart/${itemId}`);
+      setCart(cart.filter((item) => item._id !== itemId));
+    } catch (err) {
+      setError("Failed to remove item from cart. Please try again later.");
+      console.error(err);
+    }
   };
 
-  const placeOrder = () => {
+  const updateCartItemQuantity = async (itemId, quantity) => {
+    if (quantity < 1) return;
+    
+    try {
+      const response = await axiosInstance.put(`http://localhost:5000/api/cart/update/${itemId}`, {
+        quantity: quantity
+      });
+      if (response.status === 200) {
+        fetchCart(); // Refresh cart after updating quantity
+      }
+    } catch (err) {
+      toast.error("Failed to update item quantity.");
+      console.error(err);
+    }
+  };
+
+  const placeOrder = async () => {
     if (cart.length === 0) return;
 
-    const newOrder = {
-      id: orders.length + 1,
-      restaurant: selectedRestaurant.name,
-      items: cart.map((item) => item.name),
-      status: "Order placed",
-      estimatedTime: "25-35 min",
-    };
+    try {
+      const response = await axiosInstance.post(
+        "http://localhost:5000/api/orderxx`x",
+        {
+          items: cart.map((item) => ({
+            menuItemId: item.menuItemId,
+            quantity: item.quantity,
+          })),
+        }
+      );
+      alert("Order placed successfully!");
+      setCart([]);
+      setActiveTab("track");
+    } catch (err) {
+      setError("Failed to place order. Please try again later.");
+      console.error(err);
+    }
+  };
 
-    setOrders([newOrder, ...orders]);
-    setCart([]);
-    setActiveTab("track");
+  const getOrderStatusColor = (status) => {
+    switch (status) {
+      case "Order placed":
+        return "bg-blue-100 text-blue-800";
+      case "Preparing":
+        return "bg-yellow-100 text-yellow-800";
+      case "Out for delivery":
+        return "bg-purple-100 text-purple-800";
+      case "Delivered":
+        return "bg-green-100 text-green-800";
+      case "Cancelled":
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
   };
 
   return (
@@ -215,6 +294,75 @@ export default function RestaurantsAndFood() {
                       ))}
                     </div>
                   )}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Cart Tab */}
+          {activeTab === "cart" && (
+            <div>
+              <h1 className="text-2xl font-bold">Your Cart</h1>
+              {error && <p className="text-red-500">{error}</p>}
+              {loading ? (
+                <p>Loading...</p>
+              ) : cart.length === 0 ? (
+                <p>Your cart is empty.</p>
+              ) : (
+                <div>
+                  {cart.map((item) => (
+                    <div
+                      key={item._id}
+                      className="flex justify-between items-center border-b py-2"
+                    >
+                      <div>
+                        <h2>{item.name}</h2>
+                        <p>Quantity: {item.quantity}</p>
+                      </div>
+                      <button
+                        onClick={() => removeFromCart(item._id)}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    onClick={placeOrder}
+                    className="mt-4 bg-[#008083] text-white px-4 py-2 rounded hover:bg-[#005f60] transition-colors"
+                  >
+                    Place Order
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Track Orders Tab */}
+          {activeTab === "track" && (
+            <div>
+              <h1 className="text-2xl font-bold">Track Orders</h1>
+              {error && <p className="text-red-500">{error}</p>}
+              {loading ? (
+                <p>Loading...</p>
+              ) : orders.length === 0 ? (
+                <p>No orders found.</p>
+              ) : (
+                <div>
+                  {orders.map((order) => (
+                    <div key={order._id} className="border p-4 rounded-lg mb-4">
+                      <h2 className="text-lg font-semibold">Order #{order._id}</h2>
+                      <p>Status: {order.status}</p>
+                      <p>Estimated Time: {order.estimatedTime}</p>
+                      <ul>
+                        {order.items.map((item, index) => (
+                          <li key={index}>
+                            {item.name} - Quantity: {item.quantity}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>

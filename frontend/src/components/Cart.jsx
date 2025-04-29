@@ -20,7 +20,9 @@ export default function Cart() {
     const fetchCart = async () => {
       setLoading(true);
       try {
-        const response = await axiosInstance.get("http://localhost:5000/api/cart");
+        const response = await axiosInstance.get(
+          "http://localhost:5000/api/cart"
+        );
         setCart(response.data);
       } catch (err) {
         setError("Failed to load cart items. Please try again later.");
@@ -45,12 +47,15 @@ export default function Cart() {
     if (cart.length === 0) return;
 
     try {
-      const response = await axiosInstance.post("http://localhost:5000/api/orderxx`x", {
-        items: cart.map((item) => ({
-          menuItemId: item.menuItemId,
-          quantity: item.quantity,
-        })),
-      });
+      const response = await axiosInstance.post(
+        "http://localhost:5000/api/orderxx`x",
+        {
+          items: cart.map((item) => ({
+            menuItemId: item.menuItemId,
+            quantity: item.quantity,
+          })),
+        }
+      );
       alert("Order placed successfully!");
       setCart([]);
     } catch (err) {
@@ -60,7 +65,9 @@ export default function Cart() {
 
   return (
     <>
-      <Header2 />
+      <div className="container mx-auto px-4 py-4">
+        <Header2 />
+      </div>
       <div className="container mx-auto px-4 py-4">
         <h1 className="text-2xl font-bold">Your Cart</h1>
         {error && <p className="text-red-500">{error}</p>}
@@ -71,7 +78,10 @@ export default function Cart() {
         ) : (
           <div>
             {cart.map((item) => (
-              <div key={item._id} className="flex justify-between items-center border-b py-2">
+              <div
+                key={item._id}
+                className="flex justify-between items-center border-b py-2"
+              >
                 <div>
                   <h2>{item.name}</h2>
                   <p>Quantity: {item.quantity}</p>
@@ -86,7 +96,8 @@ export default function Cart() {
             ))}
             <button
               onClick={placeOrder}
-              className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+              className="mt-4 bg-[#008083] text-white px-4 py-2 rounded hover:bg-[#005f60] transition-colors"
+              // className="bg-[#008083] text-white px-3 py-1 rounded-lg hover:bg-[#005f60] transition-colors"
             >
               Place Order
             </button>

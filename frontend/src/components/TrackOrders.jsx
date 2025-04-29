@@ -20,7 +20,9 @@ export default function TrackOrders() {
     const fetchOrders = async () => {
       setLoading(true);
       try {
-        const response = await axiosInstance.get("http://localhost:5000/api/order");
+        const response = await axiosInstance.get(
+          "http://localhost:5000/api/order"
+        );
         setOrders(response.data);
       } catch (err) {
         setError("Failed to load orders. Please try again later.");
@@ -34,8 +36,10 @@ export default function TrackOrders() {
 
   return (
     <>
-      <Header2 />
       <div className="container mx-auto px-4 py-4">
+        <Header2 />
+      </div>
+      <div className="container mx-auto px-4 py-4 pb-24">
         <h1 className="text-2xl font-bold">Track Orders</h1>
         {error && <p className="text-red-500">{error}</p>}
         {loading ? (
@@ -51,7 +55,9 @@ export default function TrackOrders() {
                 <p>Estimated Time: {order.estimatedTime}</p>
                 <ul>
                   {order.items.map((item, index) => (
-                    <li key={index}>{item.name} - Quantity: {item.quantity}</li>
+                    <li key={index}>
+                      {item.name} - Quantity: {item.quantity}
+                    </li>
                   ))}
                 </ul>
               </div>
