@@ -1,7 +1,7 @@
 {
   "_type": "export",
   "__export_format": 4,
-  "__export_date": "2025-04-27T00:00:00.000Z",
+  "__export_date": "2025-04-28T00:00:00.000Z",
   "__export_source": "insomnia.desktop.app:v2023.1.0",
   "resources": [
     {
@@ -153,6 +153,97 @@
         {
           "name": "Content-Type",
           "value": "application/json"
+        }
+      ],
+      "_type": "request"
+    },
+    {
+      "_id": "req_register_driver",
+      "parentId": "fld_DeliveryService",
+      "modified": 1692297600000,
+      "name": "Register Driver",
+      "url": "http://localhost:4900/api/delivery/drivers/register",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"userId\": \"{{user_id}}\",\n  \"currentLocation\": {\n    \"latitude\": 40.7128,\n    \"longitude\": -74.0060\n  }\n}"
+      },
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ jwt_token }}"
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "_type": "request"
+    },
+    {
+      "_id": "req_get_drivers",
+      "parentId": "fld_DeliveryService",
+      "modified": 1692297600000,
+      "name": "Get All Drivers",
+      "url": "http://localhost:4900/api/delivery/drivers",
+      "method": "GET",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ jwt_token }}"
+        }
+      ],
+      "_type": "request"
+    },
+    {
+      "_id": "req_get_driver_by_id",
+      "parentId": "fld_DeliveryService",
+      "modified": 1692297600000,
+      "name": "Get Driver By ID",
+      "url": "http://localhost:4900/api/delivery/drivers/:driverId",
+      "method": "GET",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ jwt_token }}"
+        }
+      ],
+      "_type": "request"
+    },
+    {
+      "_id": "req_update_driver",
+      "parentId": "fld_DeliveryService",
+      "modified": 1692297600000,
+      "name": "Update Driver",
+      "url": "http://localhost:4900/api/delivery/drivers/:driverId",
+      "method": "PUT",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"currentLocation\": {\n    \"latitude\": 40.7128,\n    \"longitude\": -74.0060\n  },\n  \"isAvailable\": true\n}"
+      },
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ jwt_token }}"
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "_type": "request"
+    },
+    {
+      "_id": "req_delete_driver",
+      "parentId": "fld_DeliveryService",
+      "modified": 1692297600000,
+      "name": "Delete Driver",
+      "url": "http://localhost:4900/api/delivery/drivers/:driverId",
+      "method": "DELETE",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ jwt_token }}"
         }
       ],
       "_type": "request"
