@@ -2,9 +2,11 @@ const express = require('express');
 const crypto = require('crypto');
 const axios = require('axios');
 const querystring = require('querystring');
-const router = express.Router();
+const Stripe = require('stripe');
+const { MERCHANT_ID, MERCHANT_SECRET, STRIPE_SECRET_KEY } = require('../config/config');
 
-const { MERCHANT_ID, MERCHANT_SECRET } = require('../config/config');
+const stripe = new Stripe(STRIPE_SECRET_KEY);
+const router = express.Router();
 
 // Endpoint to initiate payment
 router.post('/initiate', async (req, res) => {
@@ -70,6 +72,45 @@ router.post('/success', async (req, res) => {
 
     // Send payment success email
     await axios.post(`http://localhost:4900/api/order/send-payment-email`, { orderId: order_id });
+
+    res.status(200).json({ message: 'Payment successful and order updated' });
+  } catch (error) {
+    console.error('Error updating order status:', error.message);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Endpoint to create payment intent with Stripe
+router.post('/create-payment-intent', async (req, res) => {
+  const { orderId, amount, currency } = req.body;
+
+  try {
+    // Create a PaymentIntent with Stripe
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: Math.round(amount * 100), // Convert to cents
+      currency ,
+      metadata: { orderId },
+    });
+
+    res.status(200).json({
+      clientSecret: paymentIntent.client_secret,
+    });
+  } catch (error) {
+    console.error('Error creating payment intent:', error.message);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Endpoint to handle Stripe payment success
+router.post('/payment-success', async (req, res) => {
+  const { orderId } = req.body;
+
+  try {
+    // Update order status in OrderService
+    await axios.put(`http://localhost:5000/api/order/${orderId}/status`, { status: 'Successful' });
+
+    // Send payment success email
+    await axios.post(`http://localhost:5000/api/order/send-payment-email`, { orderId });
 
     res.status(200).json({ message: 'Payment successful and order updated' });
   } catch (error) {
