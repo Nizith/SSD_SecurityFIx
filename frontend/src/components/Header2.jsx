@@ -1,13 +1,19 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import ProfPic from "/assets/profile.png";
 
 export default function Header2() {
   const navigate = useNavigate();
   const location = useLocation();
   const currentPath = location.pathname;
+  const role = localStorage.getItem("role");
 
   const handleHeaderClick = () => {
     navigate("/customer-dashboard");
+  };
+
+  const handleProfileClick = () => {
+    navigate("/user-profile");
   };
 
   const handleNavClick = (path, e) => {
@@ -20,62 +26,149 @@ export default function Header2() {
     return currentPath === path;
   };
 
+  // Logout function
+  const handleLogout = () => {
+    // Clear user data from localStorage
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    localStorage.removeItem("email");
+    localStorage.removeItem("id");
+
+    // Navigate to the login page
+    navigate("/login");
+  };
+
   return (
     <header
       className="flex justify-between items-center cursor-pointer"
-      onClick={handleHeaderClick}
+      // onClick={handleHeaderClick}
     >
       <div className="flex items-center">
-        <h1 className="text-2xl font-bold">
+        <h1 onClick={handleHeaderClick} className="text-2xl font-bold">
           <span className="text-[#008083]">Foo</span>
           <span className="text-white bg-[#f08116]">dies</span>
         </h1>
       </div>
 
-      <nav className="hidden md:flex space-x-8" onClick={(e) => e.stopPropagation()}>
-        <a 
-          // href="#" 
-          onClick={(e) => handleNavClick("/customer-dashboard", e)} 
-          className={`${isActiveLink("/customer-dashboard") ? "text-[#005f60] border-b-2 border-[#008083]" : "text-gray-600"} hover:text-[#005f60]`}
-        >
-          Dashboard
-        </a>
-        <a 
-          // href="#" 
-          onClick={(e) => handleNavClick("/restaurants-and-food", e)} 
-          className={`${isActiveLink("/restaurants-and-food") ? "text-[#005f60] border-b-2 border-[#008083]" : "text-gray-600"} hover:text-[#005f60]`}
-        >
-          Restaurants
-        </a>
-        {/* <a 
+      <nav
+        className="hidden md:flex space-x-8"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {role === "customer" ? (
+          <>
+            <a
+              // href="#"
+              onClick={(e) => handleNavClick("/customer-dashboard", e)}
+              className={`${
+                isActiveLink("/customer-dashboard")
+                  ? "text-[#005f60] border-b-2 border-[#008083]"
+                  : "text-gray-600"
+              } hover:text-[#005f60]`}
+            >
+              Dashboard
+            </a>
+            <a
+              // href="#"
+              onClick={(e) => handleNavClick("/restaurants-and-food", e)}
+              className={`${
+                isActiveLink("/restaurants-and-food")
+                  ? "text-[#005f60] border-b-2 border-[#008083]"
+                  : "text-gray-600"
+              } hover:text-[#005f60]`}
+            >
+              Restaurants
+            </a>
+            {/* <a 
           href="#" 
           onClick={(e) => handleNavClick("/about", e)} 
           className={`${isActiveLink("/about") ? "text-[#005f60] border-b-2 border-[#008083]" : "text-gray-600"} hover:text-[#005f60]`}
         >
           About
         </a> */}
-        <a 
-          // href="#" 
-          onClick={(e) => handleNavClick("/cart", e)} 
-          className={`${isActiveLink("/cart") ? "text-[#005f60] border-b-2 border-[#008083]" : "text-gray-600"} hover:text-[#005f60]`}
-        >
-          Cart
-        </a>
-        <a 
-          // href="#" 
-          onClick={(e) => handleNavClick("/track-orders", e)} 
-          className={`${isActiveLink("/track-orders") ? "text-[#005f60] border-b-2 border-[#008083]" : "text-gray-600"} hover:text-[#005f60]`}
-        >
-          Track Orders
-        </a>
-        <a 
-          // href="#" 
-          onClick={(e) => handleNavClick("/contact", e)} 
-          className={`${isActiveLink("/contact") ? "text-[#005f60] border-b-2 border-[#008083]" : "text-gray-600"} hover:text-[#005f60]`}
+            <a
+              // href="#"
+              onClick={(e) => handleNavClick("/cart", e)}
+              className={`${
+                isActiveLink("/cart")
+                  ? "text-[#005f60] border-b-2 border-[#008083]"
+                  : "text-gray-600"
+              } hover:text-[#005f60]`}
+            >
+              Cart
+            </a>
+            <a
+              // href="#"
+              onClick={(e) => handleNavClick("/track-orders", e)}
+              className={`${
+                isActiveLink("/track-orders")
+                  ? "text-[#005f60] border-b-2 border-[#008083]"
+                  : "text-gray-600"
+              } hover:text-[#005f60]`}
+            >
+              Track Orders
+            </a>
+          </>
+        ) : role === "restaurant" ? (
+          <>
+            <a
+              // href="#"
+              onClick={(e) => handleNavClick("/restaurant-admin-dashboard", e)}
+              className={`${
+                isActiveLink("/restaurant-admin-dashboard")
+                  ? "text-[#005f60] border-b-2 border-[#008083]"
+                  : "text-gray-600"
+              } hover:text-[#005f60]`}
+            >
+              Dashboard
+            </a>
+          </>
+        ) : role === "delivery" ? (
+          <>
+            <a
+              // href="#"
+              onClick={(e) =>
+                handleNavClick("/delivery-personnel-dashboard", e)
+              }
+              className={`${
+                isActiveLink("/delivery-personnel-dashboard")
+                  ? "text-[#005f60] border-b-2 border-[#008083]"
+                  : "text-gray-600"
+              } hover:text-[#005f60]`}
+            >
+              Dashboard
+            </a>
+          </>
+        ) : (
+          <></>
+        )}
+
+        <a
+          // href="#"
+          onClick={(e) => handleNavClick("/contact", e)}
+          className={`${
+            isActiveLink("/contact")
+              ? "text-[#005f60] border-b-2 border-[#008083]"
+              : "text-gray-600"
+          } hover:text-[#005f60]`}
         >
           Contact
         </a>
       </nav>
+
+      <div className="flex gap-3">
+        <img
+          onClick={handleProfileClick}
+          src={ProfPic}
+          alt="Profile"
+          className="w-8 rounded-full"
+        />
+        <button
+          onClick={handleLogout}
+          className="bg-blue-500 py-1 px-3 rounded font-semibold text-white"
+        >
+          Logout
+        </button>
+      </div>
 
       {/* <div className="flex items-center space-x-4">
         <div className="relative">

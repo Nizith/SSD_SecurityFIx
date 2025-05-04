@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import ProfPic from "/assets/profile.png";
 
 export default function Header3() {
   const navigate = useNavigate();
@@ -7,7 +8,11 @@ export default function Header3() {
   const currentPath = location.pathname;
 
   const handleHeaderClick = () => {
-    navigate("/customer-dashboard");
+    navigate("/restaurant-admin-dashboard");
+  };
+
+  const handleProfileClick = () => {
+    navigate("/user-profile");
   };
 
   const handleNavClick = (path, e) => {
@@ -20,13 +25,25 @@ export default function Header3() {
     return currentPath === path;
   };
 
+  // Logout function
+  const handleLogout = () => {
+    // Clear user data from localStorage
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    localStorage.removeItem("email");
+    localStorage.removeItem("id");
+
+    // Navigate to the login page
+    navigate("/login");
+  };
+
   return (
     <header
       className="flex justify-between items-center cursor-pointer"
-      onClick={handleHeaderClick}
+      // onClick={handleHeaderClick}
     >
       <div className="flex items-center">
-        <h1 className="text-2xl font-bold">
+        <h1 onClick={handleHeaderClick} className="text-2xl font-bold">
           <span className="text-[#008083]">Foo</span>
           <span className="text-white bg-[#f08116]">dies</span>
         </h1>
@@ -35,8 +52,8 @@ export default function Header3() {
       <nav className="hidden md:flex space-x-8" onClick={(e) => e.stopPropagation()}>
         <a 
           // href="#" 
-          onClick={(e) => handleNavClick("/customer-dashboard", e)} 
-          className={`${isActiveLink("/customer-dashboard") ? "text-[#005f60] border-b-2 border-[#008083]" : "text-gray-600"} hover:text-[#005f60]`}
+          onClick={(e) => handleNavClick("/restaurant-admin-dashboard", e)} 
+          className={`${isActiveLink("/restaurant-admin-dashboard") ? "text-[#005f60] border-b-2 border-[#008083]" : "text-gray-600"} hover:text-[#005f60]`}
         >
           Dashboard
         </a>
@@ -66,12 +83,27 @@ export default function Header3() {
           Track Orders
         </a> */}
         <a 
-          onClick={(e) => handleNavClick("/contact", e)} 
-          className={`${isActiveLink("/contact") ? "text-[#005f60] border-b-2 border-[#008083]" : "text-gray-600"} hover:text-[#005f60]`}
+          onClick={(e) => handleNavClick("/contact-res", e)} 
+          className={`${isActiveLink("/contact-res") ? "text-[#005f60] border-b-2 border-[#008083]" : "text-gray-600"} hover:text-[#005f60]`}
         >
           Contact
         </a>
       </nav>
+
+      <div className="flex gap-3">
+              <img
+                onClick={handleProfileClick}
+                src={ProfPic}
+                alt="Profile"
+                className="w-8 rounded-full"
+              />
+              <button
+                onClick={handleLogout}
+                className="bg-blue-500 py-1 px-3 rounded font-semibold text-white"
+              >
+                Logout
+              </button>
+            </div>
 
       {/* <div className="flex items-center space-x-4">
         <div className="relative">

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Footer from "./Footer";
-import Header3 from "./Header3";
+import Header2 from "./Header2";
 import {
   Truck,
   CheckCircle,
@@ -281,7 +281,7 @@ const DeliveryDashboard = () => {
   return (
     <>
       <div className="container mx-auto px-4 py-4">
-        <Header3 />
+        <Header2 />
       </div>
       <div className="container mx-auto px-4 flex-grow pb-24">
         <div className="container mx-auto px-4 py-6">
