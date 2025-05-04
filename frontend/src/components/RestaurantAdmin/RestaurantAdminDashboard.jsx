@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Footer from "../Footer";
-import Header3 from "../Header3";
+import Header2 from "../Header2";
 import RestaurantDetails from "./RestaurantDetails";
 import MenuManagement from "./MenuManagement";
 import OrderManagement from "./OrderManagement";
@@ -58,7 +58,7 @@ export default function RestaurantAdminDashboard() {
   return (
     <>
       <div className="container mx-auto px-4 py-4">
-        <Header3 />
+        <Header2 />
       </div>
 
       <div className="container mx-auto px-4 flex-grow py-6 pb-24">

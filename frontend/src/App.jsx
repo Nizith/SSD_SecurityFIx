@@ -11,6 +11,7 @@ import TrackOrders from "./components/TrackOrders";
 import DeliveryPersonnelDashboard from "./components/DeliveryPersonnelDashboard";
 import PaymentPage from "./components/PaymentPage";
 import RestaurantAdminDashboard from "./components/RestaurantAdmin/RestaurantAdminDashboard";
+import UserProfile from "./components/UserProfile";
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
           <Route path='/restaurant-admin-dashboard' element={<RestaurantAdminDashboard />} />
           <Route path='/delivery-personnel-dashboard' element={<DeliveryPersonnelDashboard />} />
           <Route path='/payment' element={<PaymentPage />} />      
+          <Route path='/user-profile' element={<UserProfile />} />     
         </Routes>
       </BrowserRouter>
     </>
