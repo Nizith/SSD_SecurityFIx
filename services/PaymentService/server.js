@@ -19,6 +19,17 @@ connectDB();
 // Middleware
 app.use(helmet());
 app.use(cors());
+app.use((req, res, next) => {
+  res.setHeader('Content-Security-Policy', "frame-ancestors 'none'");
+  res.setHeader('X-Frame-Options', 'DENY');
+  next();
+});
+
+// Add the X-Content-Type-Options header to prevent MIME type sniffing
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  next();
+});
 
 // Routes
 // Add payment routes
