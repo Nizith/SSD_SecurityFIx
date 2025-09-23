@@ -18,6 +18,7 @@ connectDB();
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
+// Security headers anti clickjacking
 app.use((req, res, next) => {
   res.setHeader('Content-Security-Policy', "frame-ancestors 'none'");
   res.setHeader('X-Frame-Options', 'DENY');
