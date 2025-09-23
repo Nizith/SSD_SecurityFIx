@@ -22,7 +22,13 @@ app.use(
 connectDB();
 
 // Middleware
-app.use(helmet());
+app.use(helmet({
+  hsts: {
+    maxAge: 31536000, // 1 year in seconds
+    includeSubDomains: true, // Apply to all subdomains
+    preload: true, // Allow preloading
+  },
+}));
 app.use(cors());
 app.use(express.json());
 
