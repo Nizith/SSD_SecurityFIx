@@ -11,10 +11,22 @@ const menuRoutes = require("./routes/menuRoutes");
 // Initialize express app
 const app = express();
 
+// Header hardening
+app.disable('x-powered-by');
+app.set('etag', false);
+if (process.env.REMOVE_DATE_HEADER === 'true') {
+  app.use((req, res, next) => {
+    res.removeHeader('Date');
+    next();
+  });
+}
+
 app.use(
   cors({
-    origin: "http://localhost:5173", // Replace with your frontend's URL
-    credentials: true, // Allow cookies and headers
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
   })
 );
 
@@ -22,13 +34,15 @@ app.use(
 connectDB();
 
 // Middleware
-app.use(helmet({
-  hsts: {
-    maxAge: 31536000, // 1 year in seconds
-    includeSubDomains: true, // Apply to all subdomains
-    preload: true, // Allow preloading
-  },
-}));
+app.use(
+  helmet({
+    hsts: {
+      maxAge: 31536000, // 1 year in seconds
+      includeSubDomains: true, // Apply to all subdomains
+      preload: true, // Allow preloading
+    },
+  })
+);
 app.use(cors());
 app.use(express.json());
 // Security headers anti clickjacking
