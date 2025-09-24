@@ -26,15 +26,14 @@ if (process.env.REMOVE_DATE_HEADER === 'true') {
 
 // Middleware
 app.use(express.json());
-app.use(
-  helmet({
-    hsts: {
-      maxAge: 31536000, // 1 year in seconds
-      includeSubDomains: true, // Apply to all subdomains
-      preload: true, // Allow preloading
-    },
-  })
-);
+
+app.use(helmet({
+  hsts: {
+    maxAge: 31536000, // 1 year in seconds
+    includeSubDomains: true, // Apply to all subdomains
+    preload: true, // Allow preloading
+  },
+}));
 app.use(
   cors({
     origin: "http://localhost:5173",
@@ -43,6 +42,18 @@ app.use(
     credentials: true,
   })
 );
+// Security headers anti clickjacking
+app.use((req, res, next) => {
+  res.setHeader('Content-Security-Policy', "frame-ancestors 'none'");
+  res.setHeader('X-Frame-Options', 'DENY');
+  next();
+});
+
+// Add the X-Content-Type-Options header to prevent MIME type sniffing
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  next();
+});
 
 // Routes
 app.use("/api/delivery", deliveryRoutes);
