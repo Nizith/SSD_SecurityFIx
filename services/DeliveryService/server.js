@@ -1,11 +1,11 @@
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const helmet = require('helmet');
-const connectDB = require('./config/db');
-const http = require('http');
-const { Server } = require('socket.io');
-const deliveryRoutes = require('./routes/deliveryRoutes');
+require("dotenv").config();
+const express = require("express");
+const cors = require("cors");
+const helmet = require("helmet");
+const connectDB = require("./config/db");
+const http = require("http");
+const { Server } = require("socket.io");
+const deliveryRoutes = require("./routes/deliveryRoutes");
 
 // Import routes
 
@@ -14,54 +14,76 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
+// Header hardening
+app.disable('x-powered-by');
+app.set('etag', false);
+if (process.env.REMOVE_DATE_HEADER === 'true') {
+  app.use((req, res, next) => {
+    res.removeHeader('Date');
+    next();
+  });
+}
+
 // Middleware
 app.use(express.json());
-app.use(helmet({
-  hsts: {
-    maxAge: 31536000, // 1 year in seconds
-    includeSubDomains: true, // Apply to all subdomains
-    preload: true, // Allow preloading
-  },
-}));
-app.use(cors());
+app.use(
+  helmet({
+    hsts: {
+      maxAge: 31536000, // 1 year in seconds
+      includeSubDomains: true, // Apply to all subdomains
+      preload: true, // Allow preloading
+    },
+  })
+);
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  })
+);
 
 // Routes
-app.use('/api/delivery', deliveryRoutes);
+app.use("/api/delivery", deliveryRoutes);
 
 // Connect to MongoDB
 connectDB();
 
 // WebSocket setup
-io.on('connection', (socket) => {
-  console.log('A user connected');
+io.on("connection", (socket) => {
+  console.log("A user connected");
 
-  socket.on('track-delivery', (deliveryId) => {
+  socket.on("track-delivery", (deliveryId) => {
     console.log(`Tracking delivery: ${deliveryId}`);
     // Emit location updates (mocked for now)
     setInterval(() => {
-      socket.emit('location-update', {
+      socket.emit("location-update", {
         deliveryId,
-        location: { latitude: Math.random() * 90, longitude: Math.random() * 180 },
+        location: {
+          latitude: Math.random() * 90,
+          longitude: Math.random() * 180,
+        },
       });
     }, 5000);
   });
 
-  socket.on('disconnect', () => {
-    console.log('User disconnected');
+  socket.on("disconnect", () => {
+    console.log("User disconnected");
   });
 });
 
 // Routes
 
 // Health check endpoint
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok', service: 'delivery-service' });
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "ok", service: "delivery-service" });
 });
 
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).json({ message: 'Something went wrong!' });
+  res.status(500).json({ message: "Something went wrong!" });
 });
 
 const PORT = process.env.PORT || 3002;

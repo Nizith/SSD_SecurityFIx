@@ -1,14 +1,24 @@
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const helmet = require('helmet');
-const connectDB = require('./config/db');
+require("dotenv").config();
+const express = require("express");
+const cors = require("cors");
+const helmet = require("helmet");
+const connectDB = require("./config/db");
 
 // Import routes
-const paymentRoutes = require('./routes/paymentRoutes');
+const paymentRoutes = require("./routes/paymentRoutes");
 
 // Initialize express app
 const app = express();
+
+// Header hardening
+app.disable('x-powered-by');
+app.set('etag', false);
+if (process.env.REMOVE_DATE_HEADER === 'true') {
+  app.use((req, res, next) => {
+    res.removeHeader('Date');
+    next();
+  });
+}
 
 // Middleware to parse JSON requests
 app.use(express.json());
@@ -17,23 +27,32 @@ app.use(express.json());
 connectDB();
 
 // Middleware
-app.use(helmet({
-  hsts: {
-    maxAge: 31536000, // 1 year in seconds
-    includeSubDomains: true, // Apply to all subdomains
-    preload: true, // Allow preloading
-  },
-}));
-app.use(cors());
+app.use(
+  helmet({
+    hsts: {
+      maxAge: 31536000, // 1 year in seconds
+      includeSubDomains: true, // Apply to all subdomains
+      preload: true, // Allow preloading
+    },
+  })
+);
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  })
+);
 
 // Routes
 // Add payment routes
-app.use('/api/payment', require('./routes/paymentRoutes'));
+app.use("/api/payment", require("./routes/paymentRoutes"));
 
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).json({ message: 'Something went wrong!' });
+  res.status(500).json({ message: "Something went wrong!" });
 });
 
 const PORT = 5100;
