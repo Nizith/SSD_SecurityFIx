@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -7,6 +8,7 @@ import LoginBgImg from "/assets/LoginImage.jpg";
 import Loading from "./Loading";
 import Footer from "./Footer";
 import Header from "./Header";
+import { GoogleLogin } from '@react-oauth/google';
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
@@ -137,6 +139,50 @@ export default function Login() {
                     "Log In"
                   )}
                 </button>
+              </div>
+              <div className="flex justify-center mt-4">
+                <GoogleLogin
+                  onSuccess={async (credentialResponse) => {
+                    try {
+                      // Send credentialResponse.credential to backend for verification
+                      const response = await axios.post(
+                        "http://localhost:4800/api/auth/google-login",
+                        { token: credentialResponse.credential }
+                      );
+                      const { token, user } = response.data;
+                      localStorage.setItem("token", token);
+                      localStorage.setItem("role", user.role);
+                      localStorage.setItem("email", user.email);
+                      localStorage.setItem("id", user.id);
+                      toast.success("Google Login Successful!");
+                      setTimeout(() => {
+                        switch (user.role) {
+                          case "admin":
+                            navigate("/admin-dashboard");
+                            break;
+                          case "customer":
+                            navigate("/customer-dashboard");
+                            break;
+                          case "restaurant":
+                            navigate("/restaurant-admin-dashboard");
+                            break;
+                          case "delivery":
+                            navigate("/delivery-personnel-dashboard");
+                            break;
+                          default:
+                            toast.error("Unauthorized role!");
+                            break;
+                        }
+                      }, 2000);
+                    } catch (error) {
+                      toast.error("Google Login Failed!");
+                      console.error(error);
+                    }
+                  }}
+                  onError={() => {
+                    toast.error("Google Login Failed!");
+                  }}
+                />
               </div>
               <p className="font-normal text-gray-600 flex justify-center items-center mt-2">
                 Don't have an account yet?
