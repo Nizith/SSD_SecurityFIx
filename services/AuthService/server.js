@@ -14,6 +14,13 @@ const app = express();
 
 app.disable('x-powered-by');
 app.set('etag', false);
+
+// Remove Server header to prevent version leakage
+app.use((req, res, next) => {
+  res.removeHeader('Server');
+  next();
+});
+
 if (process.env.REMOVE_DATE_HEADER === 'true') {
   app.use((req, res, next) => {
     res.removeHeader('Date');
@@ -32,8 +39,41 @@ app.use(
       includeSubDomains: true, // Apply to all subdomains
       preload: true, // Allow preloading
     },
-  })
-);
+contentSecurityPolicy: {
+  directives: {
+    defaultSrc: ["'self'"],
+    scriptSrc: [
+      "'self'",
+      "https://js.stripe.com",
+      "https://cdn.jsdelivr.net", 
+      "https://kit.fontawesome.com",
+      "https://cdnjs.cloudflare.com"
+    ],
+    styleSrc: [
+      "'self'",
+      "https://cdn.jsdelivr.net",
+      "https://kit.fontawesome.com",
+      "https://ka-f.fontawesome.com", 
+      "https://cdnjs.cloudflare.com"
+    ],
+    fontSrc: [
+      "'self'",
+      "https://kit.fontawesome.com",
+      "https://ka-f.fontawesome.com",
+      "https://cdnjs.cloudflare.com"
+    ],
+    connectSrc: ["'self'", "ws:", "wss:"],
+    imgSrc: ["'self'", "data:"], // Removed https: wildcard
+    mediaSrc: ["'self'"],
+    objectSrc: ["'none'"],
+    baseUri: ["'self'"],
+    frameAncestors: ["'none'"],
+    formAction: ["'self'"],
+    upgradeInsecureRequests: []
+  }
+}
+}));
+
 app.use(
   cors({
     origin: "http://localhost:5173",
@@ -43,9 +83,9 @@ app.use(
   })
 );
 app.use(express.json());
+
 // Security headers anti clickjacking
 app.use((req, res, next) => {
-  res.setHeader('Content-Security-Policy', "frame-ancestors 'none'");
   res.setHeader('X-Frame-Options', 'DENY');
   next();
 });
