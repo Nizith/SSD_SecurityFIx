@@ -14,6 +14,13 @@ const app = express();
 
 app.disable('x-powered-by');
 app.set('etag', false);
+
+// Remove Server header to prevent version leakage
+app.use((req, res, next) => {
+  res.removeHeader('Server');
+  next();
+});
+
 if (process.env.REMOVE_DATE_HEADER === 'true') {
   app.use((req, res, next) => {
     res.removeHeader('Date');
